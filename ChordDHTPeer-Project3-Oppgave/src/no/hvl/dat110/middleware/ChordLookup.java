@@ -76,7 +76,7 @@ public class ChordLookup {
 		return (NodeInterface) this;			
 	}
 	
-	public void copyKeysFromSuccessor(NodeInterface succ) {
+public void copyKeysFromSuccessor(NodeInterface succ) {
 		
 		Set<BigInteger> filekeys;
 		try {
@@ -98,6 +98,15 @@ public class ChordLookup {
 						fileID = fileID.add(addresssize);
 					}
 				}
+				// if fileID <= nodeID, copy the file to the newly joined node.
+				if(fileID.compareTo(nodeID) == -1 || fileID.compareTo(nodeID) == 0) {
+					System.out.println("fileID="+fileID+" | nodeID= "+nodeID);
+					node.addKey(fileID); 															// re-assign file to this successor node
+					Message msg = succ.getFilesMetadata().get(fileID);				
+					node.saveFileContent(msg.getNameOfFile(), fileID, msg.getBytesOfFile(), msg.isPrimaryServer()); 			// save the file in memory of the newly joined node
+					succ.removeKey(fileID); 	 																				// remove the file key from the successor
+					succ.getFilesMetadata().remove(fileID); 																	// also remove the saved file from memory
+				}
 			}
 			
 			System.out.println("Finished copying file keys from successor "+ succ.getNodeName()+" to "+node.getNodeName());
@@ -105,6 +114,7 @@ public class ChordLookup {
 			e.printStackTrace();
 		}
 	}
+		
 
 	public void notify(NodeInterface pred_new) throws RemoteException {
 		
