@@ -91,6 +91,22 @@ public class FileManager {
     	
     	// increment counter
     	
+    	createReplicaFiles();
+    	Random rnd= new Random();
+		int index= rnd.nextInt(Util.numReplicas-1);
+		
+    	for (BigInteger replica : replicafiles) {
+    		NodeInterface succ = chordnode.findSuccessor(replica);
+    		
+    		succ.addKey(replica);
+    		
+    		if(counter == index) {
+    			succ.saveFileContent(filename, replica, bytesOfFile, true); 
+    		}else {
+    			succ.saveFileContent(filename, replica, bytesOfFile, false);
+    		}
+    		counter++;
+    	}
     		
 		return counter;
     }
